@@ -1,4 +1,4 @@
-import { query } from "lib";
+import { query } from "@/lib/db";
 import { User } from "@/types/typings";
 import { NextRequest, NextResponse } from "next/server";
 
