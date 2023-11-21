@@ -10,7 +10,7 @@ export default async function SigninPage({
 }) {
   return (
     <div className="flex flex-col space-y-4 justify-center items-center h-full w-full">
-      <h1>{params.subdomain}</h1>
+      <h1 className="text-2xl mb-10 font-semibold">{params.subdomain}</h1>
       <h1 className="text-xl font-semibold">Sign in</h1>
       <h2>Sign in to your account</h2>
       <LoginForm />

@@ -4,7 +4,7 @@ import { hasSubdomain } from "lib";
 
 export function middleware(req: NextRequest) {
   const hostname = req.headers.get("host");
-  console.log("hostname: ", hostname);
+  // console.log("hostname: ", hostname);
 
   if (isLocalhost(hostname!)) {
     return NextResponse.next();
