@@ -14,10 +14,10 @@ export default function PasswordRecovery() {
   const token = useSearchParams().get("token");
 
   useEffect(() => {
+    const subdomain = window.location.hostname.split('.')[0];
     const checkToken = async () => {
-      console.log("checktoken");
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/forgot-password/check_token`,
+        `https://${subdomain}.${process.env.NEXT_PUBLIC_DOMAIN}/api/auth/forgot-password/check_token`,
         {
           method: "POST",
           headers: {

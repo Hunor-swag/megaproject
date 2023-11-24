@@ -27,10 +27,13 @@ export default function ResetPasswordForm({ token }: { token: string }) {
       return;
     }
 
+    const subdomain = window.location.hostname.split('.')[0];
+
+
     setIsSubmitting(true);
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/auth/forgot-password/change`,
+      `https://${subdomain}.${process.env.NEXT_PUBLIC_DOMAIN}/api/auth/forgot-password/change`,
       {
         method: "PUT",
         headers: {

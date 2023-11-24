@@ -1,15 +1,16 @@
-import { query } from "@/lib/db";
+import { getValidSubdomain, query } from "lib";
 import { NextRequest, NextResponse } from "next/server";
 import * as bcrypt from "bcrypt";
 
 export async function PUT(req: NextRequest) {
   try {
     const { token, password, repeat_password } = await req.json();
-
-    // check if token is expired
+		const hostname = req.headers.get('host');
+		const subdomain = getValidSubdomain(hostname);
+    const system_name = subdomain === 'dev1' ? 'test' : subdomain;
 
     const validToken = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/auth/forgot-password/check_token`,
+      `https://${subdomain}.${process.env.NEXT_PUBLIC_DOMAIN}/api/auth/forgot-password/check_token`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -18,6 +19,7 @@ export async function PUT(req: NextRequest) {
     );
 
     const validTokenResult = await validToken.json();
+
 
     if (validToken.status !== 200) {
       return new NextResponse(
@@ -46,7 +48,7 @@ export async function PUT(req: NextRequest) {
     const getUserQueryString =
       "SELECT user_id FROM password_recovery WHERE id = ?";
 
-    const getUserResult = (await query(getUserQueryString, [token])) as Array<{
+    const getUserResult = (await query('ceodash_' + system_name, getUserQueryString, [token])) as Array<{
       user_id: number;
     }>;
 
@@ -58,7 +60,7 @@ export async function PUT(req: NextRequest) {
 
     const updateQueryString = `UPDATE users SET password = ? WHERE id = ?`;
 
-    const updateResult = await query(updateQueryString, [
+    const updateResult = await query('ceodash_' + system_name, updateQueryString, [
       hashedPassword,
       getUserResult[0].user_id,
     ]);
@@ -67,7 +69,7 @@ export async function PUT(req: NextRequest) {
 
     const deleteQueryString = `DELETE FROM password_recovery WHERE id = ?`;
 
-    const deleteResult = await query(deleteQueryString, [token]);
+    const deleteResult = await query('ceodash_' + system_name, deleteQueryString, [token]);
 
     return new NextResponse(JSON.stringify({ message: "Password updated" }), {
       status: 200,

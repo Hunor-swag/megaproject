@@ -16,7 +16,7 @@ export async function middleware(req: NextRequest) {
       return NextResponse.rewrite(url);
     }
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/systems`, {
+    const res = await fetch(`https://${subdomain}.${process.env.NEXT_PUBLIC_DOMAIN}/api/systems`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

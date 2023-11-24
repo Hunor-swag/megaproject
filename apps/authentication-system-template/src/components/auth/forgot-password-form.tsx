@@ -27,8 +27,10 @@ export default function ForgotPasswordForm() {
 
     setIsSubmitting(true);
 
+    const subdomain = window.location.hostname.split('.')[0];
+
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/auth/forgot-password`,
+      `https://${subdomain}.${process.env.NEXT_PUBLIC_DOMAIN}/api/auth/forgot-password`,
       {
         method: "POST",
         headers: {

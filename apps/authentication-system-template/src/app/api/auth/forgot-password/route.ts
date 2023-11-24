@@ -1,19 +1,25 @@
-import { query } from "../../../../lib/db";
+import { query } from "lib";
 import { User } from "../../../../types/typings";
 import { NextRequest, NextResponse } from "next/server";
 const { v4: uuidv4 } = require("uuid");
 const mailgun = require("mailgun-js");
 import { emailContent } from "./html";
+import { getValidSubdomain } from "lib";
 
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json();
 
+    // console.log(req.headers.get('host'))
+    const hostname = req.headers.get('host');
+    const subdomain = getValidSubdomain(hostname) === 'dev1' ? 'test' : getValidSubdomain(hostname);
+
+    console.log(subdomain)
     // check if user exists
 
     const userQueryString = "SELECT * FROM users WHERE email = ?";
 
-    const userResult = await query(userQueryString, [email]);
+    const userResult = await query("ceodash_" + subdomain, userQueryString, [email]);
 
     const user = userResult as Array<User>;
 
@@ -33,7 +39,7 @@ export async function POST(req: NextRequest) {
       "INSERT INTO password_recovery (id, user_id, expiration_date) VALUES (?, ?, ?)";
     const expiration_date = new Date();
     expiration_date.setMinutes(expiration_date.getMinutes() + 10);
-    const passwordRecoveryResult = await query(passwordRecoveryQueryString, [
+    const passwordRecoveryResult = await query("ceodash_" + subdomain, passwordRecoveryQueryString, [
       uuid,
       user_id,
       expiration_date,
@@ -48,7 +54,7 @@ export async function POST(req: NextRequest) {
     const host = process.env.MAILGUN_HOST;
     // console.log(api_key, domain);
     const mg = mailgun({ apiKey: api_key, domain: domain, host: host });
-    const link = `${process.env.NEXT_PUBLIC_API_URL}/reset-password?token=${uuid}`;
+    const link = `https://${subdomain}.${process.env.NEXT_PUBLIC_DOMAIN}/reset-password?token=${uuid}`;
 
     const data = {
       from: "Authentication System <noreply@authentication-system.com>",
