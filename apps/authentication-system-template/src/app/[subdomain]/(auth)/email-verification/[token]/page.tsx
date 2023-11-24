@@ -13,9 +13,9 @@ export default function EmailVerificationPage({
   const [accountCreated, setAccountCreated] = useState(false);
   const { token } = params;
 
-  const signUp = () => {
+  const signUp = (subdomain: string) => {
     const res = fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/auth/sign-up/${token}`,
+      `https://${subdomain}.${process.env.NEXT_PUBLIC_DOMAIN}/api/auth/sign-up/${token}`,
       {
         method: "POST",
         headers: {
@@ -34,9 +34,9 @@ export default function EmailVerificationPage({
   };
 
   useEffect(() => {
-    console.log(accountCreated);
+    const subdomain = window.location.hostname.split(".")[0];
     if (token && !accountCreated) {
-      signUp();
+      signUp(subdomain);
       setAccountCreated(true);
     }
   }, []);

@@ -4,14 +4,17 @@ import Button from "@/components/ui/Button";
 import TextInput from "@/components/ui/TextInput";
 import { displayToastAfterFetch } from "@/lib/displayToast";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import slugify from "react-slugify";
+import { toast } from "react-toastify";
 
 export default function Home() {
   const {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm();
 
   const router = useRouter();
@@ -30,6 +33,7 @@ export default function Home() {
       {
         method: "POST",
         body: JSON.stringify({
+          system_name: formdata.system_name,
           email: formdata.email,
           password: formdata.password,
           repeat_password: formdata.repeat_password,
@@ -44,13 +48,16 @@ export default function Home() {
 
     const data = await res.json();
 
-    displayToastAfterFetch(res, data, () => router.push("/"));
+    displayToastAfterFetch(res, data, () => {
+      console.log(data);
+      router.push(`https://${data.slug}.ceodash.hu`);
+    });
     setIsSubmitting(false);
   }
 
   return (
-    <div className="w-full h-screen flex justify-center">
-      <div className="border border-black w-full mt-[10%] mx-2 md:mx-[10%] lg:mx-[15%] flex flex-col space-y-8">
+    <div className="w-full h-screen flex justify-center bg-gradient-to-bl from-yellow-200 to-blue-300">
+      <div className="w-full mt-[10%] mx-2 md:mx-[10%] lg:mx-[15%] flex flex-col space-y-8 bg-white rounded-xl shadow-lg border border-slate-200">
         <h1 className="text-center text-2xl font-semibold text-gray-600 mt-10">
           Register your system
         </h1>
@@ -60,6 +67,18 @@ export default function Home() {
             onSubmit(data);
           })}
         >
+          <TextInput
+            label={`System Name ${
+              watch("system_name") && `(${slugify(watch("system_name"))})`
+            }`}
+            placeholder="Enter name of your system..."
+            type="text"
+            register={register}
+            name="system_name"
+            required={true}
+            minLength={4}
+            error={errors.system_name?.message?.toString()}
+          />
           <div className="flex space-x-4">
             <TextInput
               label="Firstname"
@@ -90,25 +109,27 @@ export default function Home() {
             required={true}
             error={errors.email?.message?.toString()}
           />
-          <TextInput
-            label="Password"
-            placeholder="Enter your password..."
-            type="password"
-            register={register}
-            name="password"
-            required={true}
-            minLength={8}
-            error={errors.password?.message?.toString()}
-          />
-          <TextInput
-            label="Repeat Password"
-            placeholder="Enter your password again..."
-            type="password"
-            register={register}
-            name="repeat_password"
-            required={true}
-            error={errors.repeat_password?.message?.toString()}
-          />
+          <div className="flex space-x-4">
+            <TextInput
+              label="Password"
+              placeholder="Enter your password..."
+              type="password"
+              register={register}
+              name="password"
+              required={true}
+              minLength={8}
+              error={errors.password?.message?.toString()}
+            />
+            <TextInput
+              label="Repeat Password"
+              placeholder="Enter your password again..."
+              type="password"
+              register={register}
+              name="repeat_password"
+              required={true}
+              error={errors.repeat_password?.message?.toString()}
+            />
+          </div>
           <div className={`flex whitespace-nowrap text-xs space-x-2`}>
             <input
               type="checkbox"

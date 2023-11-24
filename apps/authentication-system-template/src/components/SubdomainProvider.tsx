@@ -9,7 +9,14 @@ export default function SubdomainProvider() {
 	const dispatch = useDispatch();
 
 	useEffect(() => {
-		const subdomain = window.location.hostname.split(".")[0];
+		const hostname = window.location.hostname + window.location.pathname;
+		let subdomain: string;
+
+		if (hostname.includes("localhost")) {
+			subdomain = hostname.split("/")[1];
+		} else {
+			subdomain = hostname.split(".")[0];
+		}
 		dispatch(setSubdomain(subdomain));
 	}, []);
 

@@ -1,11 +1,24 @@
-export const hasSubdomain = (hostname: string) => {
-  // Count the number of dots in the hostname
-  const dotCount = (hostname.match(/\./g) || []).length;
+export const getValidSubdomain = (host?: string | null) => {
+  let subdomain: string | null = null;
+  if (!host && typeof window !== "undefined") {
+    // On client side, get the host from window
+    host = window.location.host;
+  }
+  if (!host?.includes("localhost") && host?.match(/\./g)?.length === 1) {
+    return null;
+  }
 
-  // Check if there are more than two dots
-  return dotCount > 1;
+  if (host && host.includes(".")) {
+    const candidate = host.split(".")[0];
+    if (candidate && !candidate.includes("localhost")) {
+      // Valid candidate
+      subdomain = candidate;
+    }
+  }
+
+  return subdomain;
 };
 
-export const isLocalhost = (hostname: string) => {
-  return hostname.includes("localhost");
+export const getSystemName = (subdomain: string | null) => {
+  return subdomain === "dev1" ? "test" : subdomain;
 };

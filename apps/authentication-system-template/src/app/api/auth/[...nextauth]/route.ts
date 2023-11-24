@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import * as bcrypt from "bcrypt";
 import { getUserById } from "@/lib/getUser";
+import { getValidSubdomain } from "lib";
 
 export const authOptions = {
   // Configure one or more authentication providers
@@ -21,18 +22,15 @@ export const authOptions = {
 
       async authorize(credentials, req) {
         try {
-          // console.log(credentials?.email);
-          // Add logic here to look up the user from the credentials supplied
+          const subdomain = getValidSubdomain(req.headers?.host);
           const user = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/auth/user`,
+            `https://${subdomain}.${process.env.NEXT_PUBLIC_DOMAIN}/api/auth/user`,
             {
               method: "POST",
               body: JSON.stringify({ email: credentials?.email }),
               headers: { "Content-Type": "application/json" },
             }
           ).then((res) => (res.ok ? res.json() : null));
-
-          // console.log("User: ", user);
 
           if (!user) {
             return null;
@@ -50,7 +48,7 @@ export const authOptions = {
           // console.log(isMatch);
 
           if (!isMatch) {
-            console.log(user);
+            console.log("user:", user);
             // console.log("Invalid password");
             return null;
           } else {
